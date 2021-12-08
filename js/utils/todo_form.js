@@ -64,6 +64,7 @@ export function initForm({ element, isEdit, dataList, onSubmit }) {
       isSubmitting = false
 
       delete form.dataset.id
+      isEdit = false
     } else {
       const data = {
         title: formInput.value,

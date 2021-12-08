@@ -1,5 +1,5 @@
 import todoApi from './api/todoApi'
-import { initDelete, initForm, renderTodoItem, toast } from './utils'
+import { initDelete, initSearch, initForm, renderTodoItem, toast } from './utils'
 
 async function handleForm(isEdit, data) {
   try {
@@ -22,15 +22,41 @@ async function handleForm(isEdit, data) {
 async function handleDelete(id) {
   try {
     await todoApi.remove(id)
-    toast.error('Delete todo sucess')
+    toast.error('Delete todo success')
   } catch (error) {
     console.log('failed fetch data', error)
   }
 }
 
+async function handleFilterChange(filterName, filterValue) {
+  try {
+    const url = new URL(window.location)
+
+    url.searchParams.set(filterName, filterValue)
+
+    window.history.pushState({}, '', url)
+
+    // fetch api
+    const { data } = await todoApi.getAll(url.searchParams)
+
+    renderTodoItem('todo__list', data)
+  } catch (error) {}
+}
+
 // MAIN
 ;(async () => {
   try {
+    // ! set default search & filter (search,status) on url
+    const url = new URL(window.location)
+
+    if (!url.searchParams.get('search')) url.searchParams.set('search', '')
+    // if (!url.searchParams.get('status')) url.searchParams.set('status', 'all')
+
+    window.history.pushState({}, '', url)
+
+    const queryParams = url.searchParams
+    // ********************************
+
     const response = await todoApi.getAll()
     const { data } = response
 
@@ -46,6 +72,12 @@ async function handleDelete(id) {
     initDelete({
       element: 'todo__list',
       onChange: (id) => handleDelete(id),
+    })
+
+    initSearch({
+      element: 'formSearchTodo',
+      defaultParams: queryParams,
+      onChange: (value) => handleFilterChange('search', value),
     })
   } catch (error) {
     console.log(error)

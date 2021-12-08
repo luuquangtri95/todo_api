@@ -1,4 +1,4 @@
-import { getTemplate, updateTitle } from '.'
+import { getTemplate, isMatch, updateTitle } from '.'
 import { BUTTON_CLASS, BUTTON_NAME, DIV_CLASS, STATUS } from '../constants/todo_constants'
 
 function formEditWhenData(todo) {
@@ -33,6 +33,11 @@ export function createLiElement(todo) {
 
   // update title
   updateTitle(liElement, todo.title)
+
+  /**
+   * handle hidden li element not match
+   */
+  // liElement.hidden = !isMatch(params, liElement)
 
   // change class when status
   const currentStatus = liElement.dataset.status
