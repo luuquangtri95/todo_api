@@ -1,5 +1,5 @@
 import todoApi from './api/todoApi'
-import { initDelete, initSearch, initForm, renderTodoItem, toast } from './utils'
+import { initDelete, initFilterStatus, initForm, initSearch, renderTodoItem, toast } from './utils'
 
 async function handleForm(isEdit, data) {
   try {
@@ -37,10 +37,20 @@ async function handleFilterChange(filterName, filterValue) {
     window.history.pushState({}, '', url)
 
     // fetch api
-    const { data } = await todoApi.getAll(url.searchParams)
 
-    renderTodoItem('todo__list', data)
-  } catch (error) {}
+    // ! if status === all get all data
+    if (url.searchParams.get('status') === 'all') {
+      const response = await todoApi.getAll()
+      const { data } = response
+
+      renderTodoItem('todo__list', data, url.searchParams)
+    }
+
+    const { data } = await todoApi.getAll(url.searchParams)
+    renderTodoItem('todo__list', data, url.searchParams)
+  } catch (error) {
+    toast.error('failed to fetch api search', error)
+  }
 }
 
 // MAIN
@@ -50,7 +60,7 @@ async function handleFilterChange(filterName, filterValue) {
     const url = new URL(window.location)
 
     if (!url.searchParams.get('search')) url.searchParams.set('search', '')
-    // if (!url.searchParams.get('status')) url.searchParams.set('status', 'all')
+    if (!url.searchParams.get('status')) url.searchParams.set('status', 'all')
 
     window.history.pushState({}, '', url)
 
@@ -60,7 +70,7 @@ async function handleFilterChange(filterName, filterValue) {
     const response = await todoApi.getAll()
     const { data } = response
 
-    renderTodoItem('todo__list', data)
+    renderTodoItem('todo__list', data, queryParams)
 
     initForm({
       element: 'formId',
@@ -79,7 +89,13 @@ async function handleFilterChange(filterName, filterValue) {
       defaultParams: queryParams,
       onChange: (value) => handleFilterChange('search', value),
     })
+
+    initFilterStatus({
+      element: 'formFilterTodo',
+      defaultParams: queryParams,
+      onChange: (value) => handleFilterChange('status', value),
+    })
   } catch (error) {
-    console.log(error)
+    toast.error('failed to fetch todo !!!', error)
   }
 })()

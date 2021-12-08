@@ -14,6 +14,12 @@ function isMatchSearch(search, liElement) {
   return titleElement.textContent.toLowerCase().includes(search.toLowerCase())
 }
 
+function isMatchStatus(status, liElement) {
+  return status === 'all' || liElement.dataset.status === status
+}
+
 export function isMatch(params, liElement) {
-  return isMatchSearch(params.get('search'), liElement)
+  return (
+    isMatchSearch(params.get('search'), liElement) && isMatchStatus(params.get('status'), liElement)
+  )
 }

@@ -21,7 +21,7 @@ function formEditWhenData(todo) {
   formCheck.checked = todo.status === STATUS.COMPLETED ? true : false
 }
 
-export function createLiElement(todo) {
+export function createLiElement(todo, params) {
   if (!todo) return null
 
   const template = getTemplate()
@@ -37,7 +37,9 @@ export function createLiElement(todo) {
   /**
    * handle hidden li element not match
    */
-  // liElement.hidden = !isMatch(params, liElement)
+  if (params) {
+    liElement.hidden = !isMatch(params, liElement)
+  }
 
   // change class when status
   const currentStatus = liElement.dataset.status
@@ -66,14 +68,18 @@ export function createLiElement(todo) {
   return liElement
 }
 
-export function renderTodoItem(ulElementId, todoList) {
+export function renderTodoItem(ulElementId, todoList, params) {
   if (!Array.isArray(todoList) || todoList.length === 0) return
 
   const ulElement = document.getElementById(ulElementId)
   if (!ulElement) return
 
+  if (params) {
+    ulElement.textContent = ''
+  }
+
   for (const todo of todoList) {
-    const liElement = createLiElement(todo)
+    const liElement = createLiElement(todo, params)
 
     ulElement.appendChild(liElement)
   }
