@@ -1,13 +1,5 @@
 import todoApi from './api/todoApi'
-import {
-  createLiElement,
-  initDelete,
-  initFilterStatus,
-  initForm,
-  initSearch,
-  renderTodoItem,
-  toast,
-} from './utils'
+import { initDelete, initFilterStatus, initForm, initSearch, renderTodoItem, toast } from './utils'
 
 async function handleForm(formValues) {
   try {
