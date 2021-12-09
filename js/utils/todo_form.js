@@ -16,7 +16,7 @@ function hideLoading(form) {
   button.disabled = false
 }
 
-export function initForm({ element, isEdit, dataList, onSubmit }) {
+export function initForm({ element, defaultValue, onSubmit }) {
   const form = document.getElementById(element)
   if (!form) return
 
@@ -26,20 +26,21 @@ export function initForm({ element, isEdit, dataList, onSubmit }) {
   const formCheck = form.querySelector('[name="formCheck"]')
   if (!formCheck) return
 
-  let isSubmitting = false
-
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
 
-    const isEdited = form.dataset.id
-    if (!!isEdited) {
-      isEdit = true
+    const data = {
+      id: form.dataset.id,
+      title: formInput.value,
+      status: formCheck.checked ? STATUS.COMPLETED : STATUS.PENDING,
+    }
 
-      const index = dataList.findIndex((x) => x.id.toString() === form.dataset.id)
-      dataList[index].title = formInput.value
-      dataList[index].status = formCheck.checked ? STATUS.COMPLETED : STATUS.PENDING
+    if (data.id !== undefined) {
+      const index = defaultValue.findIndex((x) => x.id.toString() === form.dataset.id)
 
-      // update UI
+      defaultValue[index] = formInput.value
+      defaultValue[index] = formCheck.value
+
       const liElement = document.querySelector(`ul#todo__list > li[data-id="${form.dataset.id}"]`)
       const divClass = liElement.querySelector('div.todo')
       const titleElement = liElement.querySelector('p.todo__heading')
@@ -56,31 +57,18 @@ export function initForm({ element, isEdit, dataList, onSubmit }) {
         divClass.classList.add(DIV_CLASS.PENDING)
       }
 
-      showLoading(form)
-      isSubmitting = true
-      await onSubmit?.(isEdit, dataList[index])
-
-      hideLoading(form)
-      isSubmitting = false
-
       delete form.dataset.id
-      isEdit = false
+
+      await onSubmit?.(data)
     } else {
       const data = {
         title: formInput.value,
         status: formCheck.checked ? STATUS.COMPLETED : STATUS.PENDING,
       }
 
-      showLoading(form)
-      isSubmitting = true
-
-      await onSubmit?.(isEdit, data)
-
-      hideLoading(form)
-      isSubmitting = false
+      await onSubmit?.(data)
     }
 
-    // reset form
     form.reset()
   })
 }

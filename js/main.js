@@ -1,18 +1,25 @@
 import todoApi from './api/todoApi'
-import { initDelete, initFilterStatus, initForm, initSearch, renderTodoItem, toast } from './utils'
+import {
+  createLiElement,
+  initDelete,
+  initFilterStatus,
+  initForm,
+  initSearch,
+  renderTodoItem,
+  toast,
+} from './utils'
 
-async function handleForm(isEdit, data) {
+async function handleForm(formValues) {
   try {
-    if (isEdit) {
-      // mode edit
-      await todoApi.update(data)
-      toast.success('Update todo success')
+    if (formValues.id) {
+      await todoApi.update(formValues)
+      toast.success('edit data success')
     } else {
-      // mode add
-      const newData = await todoApi.addTodo(data)
-      toast.info('Add new todo successfully')
-      // render new todo
-      renderTodoItem('todo__list', [newData.data])
+      const newTodo = await todoApi.addTodo(formValues)
+      toast.info('add new data success')
+      const { data } = newTodo
+
+      renderTodoItem('todo__list', [data])
     }
   } catch (error) {
     console.log('failed fetch data', error)
@@ -74,9 +81,8 @@ async function handleFilterChange(filterName, filterValue) {
 
     initForm({
       element: 'formId',
-      isEdit: false,
-      dataList: data,
-      onSubmit: (isEdit, data) => handleForm(isEdit, data),
+      defaultValue: data,
+      onSubmit: (data) => handleForm(data),
     })
 
     initDelete({
